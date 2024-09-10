@@ -1,0 +1,1 @@
+type AuthScreenState = "login" | "signup";
