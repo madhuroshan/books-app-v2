@@ -1,3 +1,5 @@
+"use client";
+
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import React from "react";

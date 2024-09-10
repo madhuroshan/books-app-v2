@@ -7,9 +7,9 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddThoughtForm from "@/components/AddThoughtForm";
-
+import { checkAuth } from "@/lib/actions/user.actions";
 let data = [
   {
     id: 1,
@@ -29,10 +29,18 @@ let data = [
 
 export default function Home() {
   const router = useRouter();
-  const isAuthenticated = true;
-  if (!isAuthenticated) {
-    router.push("/auth");
-  }
+
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      const isAuthenticated = await checkAuth();
+      console.log(isAuthenticated);
+      if (!isAuthenticated) {
+        router.push("/auth");
+      }
+    };
+
+    checkAuthentication();
+  }, [router]);
 
   const [thoughts, setThoughts] = useState<Thought[]>(data);
   const [openForm, setOpenForm] = useState(false);
@@ -56,7 +64,10 @@ export default function Home() {
 
       <div className="flex flex-wrap gap-2">
         {thoughts.map((thought) => (
-          <ThoughtCard thought={thought} key={thought.id} />
+          <ThoughtCard
+            thought={JSON.parse(JSON.stringify(thought))}
+            key={thought.id}
+          />
         ))}
       </div>
 
@@ -66,7 +77,7 @@ export default function Home() {
             <AddThoughtForm
               setOpenForm={setOpenForm}
               setThoughts={setThoughts}
-              thoughts={thoughts}
+              thoughts={JSON.parse(JSON.stringify(thoughts))}
             />
           </DialogContent>
         </Dialog>
