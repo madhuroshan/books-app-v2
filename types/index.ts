@@ -18,3 +18,10 @@ type LoginUserParams = {
   email: string;
   password: string;
 };
+
+type CreateThoughtParams = {
+  userId: string; // Replace Document._id with the correct property or value
+  title: string;
+  author: string;
+  content: string;
+};

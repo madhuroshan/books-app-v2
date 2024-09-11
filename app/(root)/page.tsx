@@ -9,30 +9,40 @@ import { PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddThoughtForm from "@/components/AddThoughtForm";
-import { checkAuth } from "@/lib/actions/user.actions";
-let data = [
-  {
-    id: 1,
-    title: "Book Name 1",
-    author: "Author 1",
-    content:
-      "This is the content of thought 1. lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Quisquam, quos. lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Quisquam, quos.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Quisquam, quos.",
-  },
-  {
-    id: 2,
-    title: "Book Name 2",
-    author: "Author 2",
-    content:
-      "This is the content of thought 2. lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Quisquam, quos. lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Quisquam, quos.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Quisquam, quos.",
-  },
-];
+import { checkAuth, getCurrentUser } from "@/lib/actions/user.actions";
+import { getThoughts } from "@/lib/actions/thought.actions";
+import { IUser } from "@/lib/database/user.model";
+
+// let data = [
+//   {
+//     id: 1,
+//     title: "Book Name 1",
+//     author: "Author 1",
+//     content:
+//       "This is the content of thought 1. lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Quisquam, quos. lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Quisquam, quos.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Quisquam, quos.",
+//   },
+//   {
+//     id: 2,
+//     title: "Book Name 2",
+//     author: "Author 2",
+//     content:
+//       "This is the content of thought 2. lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Quisquam, quos. lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Quisquam, quos.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Quisquam, quos.",
+//   },
+// ];
 
 export default function Home() {
   const router = useRouter();
+  const [thoughts, setThoughts] = useState<Thought[]>([]);
+  const [openForm, setOpenForm] = useState(false);
+  const [user, setUser] = useState<IUser | null>(null);
 
   useEffect(() => {
     const checkAuthentication = async () => {
       const isAuthenticated = await checkAuth();
+      const user = await getCurrentUser();
+      const thoughts = await getThoughts({ userId: user._id });
+      setThoughts(thoughts);
+      setUser(user);
       console.log(isAuthenticated);
       if (!isAuthenticated) {
         router.push("/auth");
@@ -41,9 +51,6 @@ export default function Home() {
 
     checkAuthentication();
   }, [router]);
-
-  const [thoughts, setThoughts] = useState<Thought[]>(data);
-  const [openForm, setOpenForm] = useState(false);
 
   return (
     <div className="mx-auto max-w-[1280px] mt-4 max-sm:p-2">
@@ -78,6 +85,7 @@ export default function Home() {
               setOpenForm={setOpenForm}
               setThoughts={setThoughts}
               thoughts={JSON.parse(JSON.stringify(thoughts))}
+              user={user!}
             />
           </DialogContent>
         </Dialog>

@@ -4,34 +4,31 @@ import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
+import { IUser } from "@/lib/database/user.model";
+import { createThought } from "@/lib/actions/thought.actions";
 
 interface AddThoughtFormProps {
   setOpenForm: (value: boolean) => void;
   setThoughts: (value: Thought[]) => void;
   thoughts: Thought[];
+  user: IUser;
 }
 
 const AddThoughtForm = ({
   setOpenForm,
   setThoughts,
   thoughts,
+  user,
 }: AddThoughtFormProps) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setOpenForm(false);
-    setThoughts([
-      ...thoughts,
-      {
-        id: thoughts.length + 1,
-        title,
-        author,
-        content,
-      },
-    ]);
+    await createThought({ userId: user._id as string, title, author, content });
+    window.location.reload();
     setTitle("");
     setAuthor("");
     setContent("");

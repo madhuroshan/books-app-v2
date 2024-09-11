@@ -117,6 +117,30 @@ export const login = async (params: LoginUserParams) => {
   }
 };
 
+export const getCurrentUser = async () => {
+  try {
+    const token = cookies().get("token")?.value;
+
+    if (!token) {
+      return null;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as Secret);
+    const userId = JSON.parse(JSON.stringify(decoded)).id;
+    await connectToDB();
+    // console.log(userId);
+    const user = await User.findOne({
+      _id: userId,
+    });
+    // console.log(user);
+
+    return JSON.parse(JSON.stringify(user));
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
 export const logout = async () => {
   try {
     // destroy session
