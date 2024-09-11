@@ -41,6 +41,12 @@ export const signup = async (params: SignUpUserParams) => {
       throw new Error("User already exists");
     }
 
+    // check for unique username
+    const usernameExists = await User.findOne({ username });
+    if (usernameExists) {
+      throw new Error("Username already exists");
+    }
+
     const hashedPassword = await bcryptjs.hash(password, 10);
     //create user
     const user = await User.create({
@@ -80,14 +86,44 @@ export const checkAuth = async () => {
   }
 };
 
-export const login = async (email: string, password: string) => {
+export const login = async (params: LoginUserParams) => {
   try {
     // authenticate user and create a session with jwt token
-  } catch (error) {}
+    const { email, password } = params;
+
+    if (!email || !password) {
+      throw new Error("Email and password are required");
+    }
+
+    await connectToDB();
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const passwordMatch = await bcryptjs.compare(password, user.password);
+
+    if (!passwordMatch) {
+      throw new Error("Invalid credentials");
+    }
+
+    generateTokenAndSetCookie(user);
+
+    return JSON.parse(JSON.stringify(user));
+  } catch (error) {
+    console.log(error);
+    throw Error;
+  }
 };
 
 export const logout = async () => {
   try {
     // destroy session
-  } catch (error) {}
+    cookies().delete("token");
+    revalidatePath("/");
+  } catch (error) {
+    console.log(error);
+    throw Error;
+  }
 };
