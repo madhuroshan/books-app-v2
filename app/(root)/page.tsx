@@ -39,14 +39,15 @@ export default function Home() {
   useEffect(() => {
     const checkAuthentication = async () => {
       const isAuthenticated = await checkAuth();
+      if (!isAuthenticated) {
+        router.push("/auth");
+        return;
+      }
       const user = await getCurrentUser();
       const thoughts = await getThoughts({ userId: user._id });
       setThoughts(thoughts);
       setUser(user);
       console.log(isAuthenticated);
-      if (!isAuthenticated) {
-        router.push("/auth");
-      }
     };
 
     checkAuthentication();
